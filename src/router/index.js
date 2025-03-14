@@ -3,6 +3,12 @@ import Layout from '../layout/index.vue'
 
 const routes = [
   {
+    path: '/login',
+    name: 'Login',
+    component: () => import('../views/login/index.vue'),
+    meta: { title: '登录' }
+  },
+  {
     path: '/',
     component: Layout,
     redirect: '/dashboard',
@@ -130,8 +136,28 @@ const router = createRouter({
 
 // 添加路由守卫
 router.beforeEach((to, from, next) => {
-  // 这里可以添加路由拦截逻辑
-  next()
+  const token = localStorage.getItem('token')
+  
+  // 白名单路由 - 不需要登录就可以访问
+  const whiteList = ['/login']
+  
+  if (token) {
+    if (to.path === '/login') {
+      // 已登录且要跳转的页面是登录页
+      next({ path: '/' })
+    } else {
+      next()
+    }
+  } else {
+    // 未登录
+    if (whiteList.includes(to.path)) {
+      // 在免登录白名单中，直接进入
+      next()
+    } else {
+      // 其他没有访问权限的页面将被重定向到登录页面
+      next(`/login?redirect=${to.path}`)
+    }
+  }
 })
 
 export default router 

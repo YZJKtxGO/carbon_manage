@@ -3,7 +3,7 @@ import request from '@/utils/request'
 // 用户登录
 export function login(data) {
   return request({
-    url: '/auth/login',
+    url: '/user/login',
     method: 'post',
     data
   })
@@ -49,5 +49,12 @@ export function deleteUser(id) {
   return request({
     url: `/user/${id}`,
     method: 'delete'
+  })
+}
+
+export function logout() {
+  return request({
+    url: '/user/logout',
+    method: 'post'
   })
 } 
