@@ -4,7 +4,13 @@
       <template #header>
         <div class="card-header">
           <span>用户管理</span>
-          <el-button type="primary" @click="handleAdd">添加用户</el-button>
+          <el-button 
+            v-if="showAdminButtons"
+            type="primary" 
+            @click="handleAdd"
+          >
+            添加用户
+          </el-button>
         </div>
       </template>
       
@@ -22,7 +28,14 @@
         <el-table-column label="操作" width="200">
           <template #default="scope">
             <el-button size="small" @click="handleEdit(scope.row)">编辑</el-button>
-            <el-button size="small" type="danger" @click="handleDelete(scope.row)">删除</el-button>
+            <el-button 
+              v-if="showAdminButtons"
+              size="small" 
+              type="danger" 
+              @click="handleDelete(scope.row)"
+            >
+              删除
+            </el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -31,9 +44,10 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { getUserList, createUser, updateUser, deleteUser } from '@/api/user'
+import { isAdmin } from '@/utils/auth'
 
 const tableData = ref([])
 const loading = ref(false)
@@ -49,6 +63,8 @@ const formData = ref({
   role: '',
   status: 1
 })
+
+const showAdminButtons = computed(() => isAdmin())
 
 const getList = async () => {
   try {

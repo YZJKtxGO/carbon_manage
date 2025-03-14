@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import Layout from '../layout/index.vue'
+import { isAdmin } from '@/utils/auth'
 
 const routes = [
   {
@@ -134,27 +135,26 @@ const router = createRouter({
   routes
 })
 
-// 添加路由守卫
+// 修改路由守卫
 router.beforeEach((to, from, next) => {
   const token = localStorage.getItem('token')
-  
-  // 白名单路由 - 不需要登录就可以访问
   const whiteList = ['/login']
   
   if (token) {
     if (to.path === '/login') {
-      // 已登录且要跳转的页面是登录页
       next({ path: '/' })
     } else {
+      // 检查系统管理页面的访问权限
+      if (to.path.startsWith('/system') && !isAdmin()) {
+        next('/403')
+        return
+      }
       next()
     }
   } else {
-    // 未登录
     if (whiteList.includes(to.path)) {
-      // 在免登录白名单中，直接进入
       next()
     } else {
-      // 其他没有访问权限的页面将被重定向到登录页面
       next(`/login?redirect=${to.path}`)
     }
   }

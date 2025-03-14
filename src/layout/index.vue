@@ -39,7 +39,10 @@
           <el-menu-item index="/data/analysis">报表分析</el-menu-item>
         </el-sub-menu>
 
-        <el-sub-menu index="/system">
+        <el-sub-menu 
+          v-if="showSystemMenu" 
+          index="/system"
+        >
           <template #title>
             <el-icon><Setting /></el-icon>
             <span>系统管理</span>
@@ -198,6 +201,7 @@ import {
 } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import { getUserInfo, logout } from '@/api/user'
+import { isAdmin } from '@/utils/auth'
 
 const route = useRoute()
 const router = useRouter()
@@ -311,6 +315,9 @@ const handleLogout = async () => {
     console.error('退出失败:', error)
   }
 }
+
+// 控制系统管理菜单的显示
+const showSystemMenu = computed(() => isAdmin())
 
 onMounted(() => {
   fetchUserInfo()

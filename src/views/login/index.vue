@@ -36,7 +36,7 @@
         </el-form-item>
       </el-form>
       <div class="login-tips">
-        <p>默认账号：admin</p>
+        <p>默认账号：admin/user</p>
         <p>默认密码：123456</p>
       </div>
     </el-card>
@@ -54,8 +54,8 @@ const route = useRoute()
 const loginFormRef = ref(null)
 
 const loginForm = reactive({
-  username: 'admin',
-  password: '123456'
+  username: '',
+  password: ''
 })
 
 const loginRules = {
