@@ -18,7 +18,6 @@ request.interceptors.request.use(
     return config
   },
   error => {
-    console.error('请求错误：', error)
     return Promise.reject(error)
   }
 )
@@ -29,7 +28,9 @@ request.interceptors.response.use(
     const res = response.data
     
     // 这里假设后端返回格式为 { code: number, data: any, message: string }
-    if (res.code !== 200) {
+    if (res.code === 200) {
+      return res
+    } else {
       ElMessage.error(res.message || '请求失败')
       
       // 处理特定错误码
@@ -38,14 +39,16 @@ request.interceptors.response.use(
         localStorage.removeItem('token')
         window.location.href = '/login'
       }
-      return Promise.reject(new Error(res.message || '请求失败'))
+      return Promise.reject(res)
     }
-    
-    return res.data
   },
   error => {
-    console.error('响应错误：', error)
-    ElMessage.error(error.message || '网络错误')
+    if (error.response?.status === 401) {
+      // token过期或无效
+      localStorage.removeItem('token')
+      window.location.href = '/login'
+    }
+    ElMessage.error(error.message || '请求失败')
     return Promise.reject(error)
   }
 )

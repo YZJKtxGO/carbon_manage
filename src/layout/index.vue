@@ -175,8 +175,8 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
-import { useRoute } from 'vue-router'
+import { ref, computed, onMounted } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import TagsView from './components/TagsView.vue'
 import { 
   Bell,
@@ -196,8 +196,11 @@ import {
   DataLine,
   ChatDotRound
 } from '@element-plus/icons-vue'
+import { ElMessage } from 'element-plus'
+import { getUserInfo, logout } from '@/api/user'
 
 const route = useRoute()
+const router = useRouter()
 const isCollapse = ref(false)
 
 const activeMenu = computed(() => route.path)
@@ -284,6 +287,34 @@ const readAll = () => {
     item.read = true
   })
 }
+
+// 获取用户信息
+const fetchUserInfo = async () => {
+  try {
+    const res = await getUserInfo()
+    // 存储用户信息
+    localStorage.setItem('userInfo', JSON.stringify(res.data))
+  } catch (error) {
+    console.error('获取用户信息失败:', error)
+  }
+}
+
+// 退出登录
+const handleLogout = async () => {
+  try {
+    await logout()
+    localStorage.removeItem('token')
+    localStorage.removeItem('userInfo')
+    ElMessage.success('退出成功')
+    router.push('/login')
+  } catch (error) {
+    console.error('退出失败:', error)
+  }
+}
+
+onMounted(() => {
+  fetchUserInfo()
+})
 </script>
 
 <style scoped>
