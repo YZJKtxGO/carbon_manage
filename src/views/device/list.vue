@@ -15,7 +15,7 @@
               :prefix-icon="Search"
               clearable
             />
-            <el-button type="primary" @click="handleAdd">
+            <el-button type="primary" @click="handleAdd" v-has>
               <el-icon><Plus /></el-icon>添加设备
             </el-button>
           </div>

@@ -31,7 +31,7 @@ const routes = [
         path: 'list',
         name: 'DeviceList',
         component: () => import('../views/device/list.vue'),
-        meta: { title: '设备列表' }
+        meta: { title: '设备列表',btnPermissions: ['admin'] }
       },
       {
         path: 'category',
