@@ -4,56 +4,41 @@
     <el-aside :width="isCollapse ? '64px' : '200px'" class="aside">
       <div class="logo-container">
         <span v-show="!isCollapse">碳排放管理系统</span>
-        <el-icon v-show="isCollapse"><Promotion /></el-icon>
+        <el-icon v-show="isCollapse">
+          <Promotion />
+        </el-icon>
       </div>
       <el-menu
-        :default-active="activeMenu"
-        class="el-menu-vertical"
-        :collapse="isCollapse"
+        :default-active="activeMenu" 
+        class="el-menu-vertical" 
+        :collapse="isCollapse" 
         background-color="#304156"
-        text-color="#bfcbd9"
-        active-text-color="#409EFF"
+        text-color="#bfcbd9" 
+        active-text-color="#409EFF" 
         router
-      >
-        <el-menu-item index="/dashboard">
-          <el-icon><House /></el-icon>
-          <template #title>首页</template>
-        </el-menu-item>
+        >
+        <template v-for="item in menuList" :key="item.path">
+          <!-- 没有子菜单的情况 -->
+          <el-menu-item v-if="!item.children" :index="item.path">
+            <el-icon>
+              <component :is="item.icon" />
+            </el-icon>
+            <template #title>{{ item.title }}</template>
+          </el-menu-item>
 
-        <el-sub-menu index="/device">
-          <template #title>
-            <el-icon><Monitor /></el-icon>
-            <span>设备管理</span>
-          </template>
-          <el-menu-item index="/device/list">设备列表</el-menu-item>
-          <el-menu-item index="/device/category">设备分类</el-menu-item>
-          <el-menu-item index="/device/maintenance">设备维护</el-menu-item>
-        </el-sub-menu>
-
-        <el-sub-menu index="/data">
-          <template #title>
-            <el-icon><DataLine /></el-icon>
-            <span>数据管理</span>
-          </template>
-          <el-menu-item index="/data/import">数据导入</el-menu-item>
-          <el-menu-item index="/data/analysis">报表分析</el-menu-item>
-        </el-sub-menu>
-
-        <el-sub-menu index="/system">
-          <template #title>
-            <el-icon><Setting /></el-icon>
-            <span>系统管理</span>
-          </template>
-          <el-menu-item index="/system/user">用户管理</el-menu-item>
-          <el-menu-item index="/system/role">角色管理</el-menu-item>
-          <el-menu-item index="/system/menu">菜单管理</el-menu-item>
-          <el-menu-item index="/system/log">日志管理</el-menu-item>
-        </el-sub-menu>
-
-        <el-menu-item index="/feedback">
-          <el-icon><ChatDotRound /></el-icon>
-          <template #title>意见反馈</template>
-        </el-menu-item>
+          <!-- 有子菜单的情况 -->
+          <el-sub-menu v-else :index="item.path">
+            <template #title>
+              <el-icon>
+                <component :is="item.icon" />
+              </el-icon>
+              <span>{{ item.title }}</span>
+            </template>
+            <el-menu-item v-for="child in item.children" :key="child.path" :index="child.path">
+              {{ child.title }}
+            </el-menu-item>
+          </el-sub-menu>
+        </template>
       </el-menu>
     </el-aside>
 
@@ -61,43 +46,32 @@
       <!-- 头部 -->
       <el-header class="header">
         <div class="header-left">
-          <el-icon 
-            class="collapse-btn"
-            @click="toggleCollapse"
-          >
+          <el-icon class="collapse-btn" @click="toggleCollapse">
             <component :is="isCollapse ? 'Expand' : 'Fold'" />
           </el-icon>
         </div>
         <div class="header-right">
           <!-- 通知组件 -->
           <el-badge :value="unreadCount" :max="99" class="notice-badge">
-            <el-popover
-              placement="bottom"
-              :width="300"
-              trigger="click"
-              popper-class="notice-popover"
-            >
+            <el-popover placement="bottom" :width="300" trigger="click" popper-class="notice-popover">
               <template #reference>
-                <el-icon class="notice-icon" :size="20"><Bell /></el-icon>
+                <el-icon class="notice-icon" :size="20">
+                  <Bell />
+                </el-icon>
               </template>
-              
+
               <template #default>
                 <div class="notice-header">
                   <span>通知</span>
                   <el-button link type="primary" @click="readAll">全部已读</el-button>
                 </div>
-                
+
                 <el-tabs v-model="activeNoticeTab">
                   <el-tab-pane label="通知" name="notification">
                     <el-scrollbar max-height="300px">
                       <div v-if="notifications.length" class="notice-list">
-                        <div 
-                          v-for="item in notifications" 
-                          :key="item.id"
-                          class="notice-item"
-                          :class="{ unread: !item.read }"
-                          @click="readNotification(item)"
-                        >
+                        <div v-for="item in notifications" :key="item.id" class="notice-item"
+                          :class="{ unread: !item.read }" @click="readNotification(item)">
                           <el-icon class="notice-item-icon" :class="item.type">
                             <component :is="getNoticeIcon(item.type)" />
                           </el-icon>
@@ -110,17 +84,12 @@
                       <el-empty v-else description="暂无通知" />
                     </el-scrollbar>
                   </el-tab-pane>
-                  
+
                   <el-tab-pane label="消息" name="message">
                     <el-scrollbar max-height="300px">
                       <div v-if="messages.length" class="notice-list">
-                        <div 
-                          v-for="item in messages" 
-                          :key="item.id"
-                          class="notice-item"
-                          :class="{ unread: !item.read }"
-                          @click="readMessage(item)"
-                        >
+                        <div v-for="item in messages" :key="item.id" class="notice-item" :class="{ unread: !item.read }"
+                          @click="readMessage(item)">
                           <el-avatar :size="32" :src="item.avatar" />
                           <div class="notice-item-content">
                             <div class="notice-item-title">{{ item.title }}</div>
@@ -141,21 +110,31 @@
           <el-dropdown>
             <div class="user-info">
               <el-avatar :size="32" :src="userAvatar">
-                <el-icon><UserFilled /></el-icon>
+                <el-icon>
+                  <UserFilled />
+                </el-icon>
               </el-avatar>
               <span class="username">管理员</span>
-              <el-icon><CaretBottom /></el-icon>
+              <el-icon>
+                <CaretBottom />
+              </el-icon>
             </div>
             <template #dropdown>
               <el-dropdown-menu>
                 <el-dropdown-item @click="$router.push('/system/profile')">
-                  <el-icon><User /></el-icon>个人信息
+                  <el-icon>
+                    <User />
+                  </el-icon>个人信息
                 </el-dropdown-item>
                 <el-dropdown-item @click="$router.push('/system/settings')">
-                  <el-icon><Setting /></el-icon>系统设置
+                  <el-icon>
+                    <Setting />
+                  </el-icon>系统设置
                 </el-dropdown-item>
                 <el-dropdown-item divided @click="handleLogout">
-                  <el-icon><SwitchButton /></el-icon>退出登录
+                  <el-icon>
+                    <SwitchButton />
+                  </el-icon>退出登录
                 </el-dropdown-item>
               </el-dropdown-menu>
             </template>
@@ -178,13 +157,13 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import TagsView from './components/TagsView.vue'
-import { 
+import {
   Bell,
   Message,
   Warning,
   InfoFilled,
-  User, 
-  Setting, 
+  User,
+  Setting,
   SwitchButton,
   UserFilled,
   House,
@@ -198,6 +177,49 @@ import {
 } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import { getUserInfo, logout } from '@/api/user'
+
+const menuList = [
+  {
+    path: '/dashboard',
+    title: '首页',
+    icon: 'House'
+  },
+  {
+    path: '/device',
+    title: '设备管理',
+    icon: 'Monitor',
+    children: [
+      { path: '/device/list', title: '设备列表' },
+      { path: '/device/category', title: '设备分类' },
+      { path: '/device/maintenance', title: '设备维护' }
+    ]
+  },
+  {
+    path: '/data',
+    title: '数据管理',
+    icon: 'DataLine',
+    children: [
+      { path: '/data/import', title: '数据导入' },
+      { path: '/data/analysis', title: '报表分析' }
+    ]
+  },
+  {
+    path: '/system',
+    title: '系统管理',
+    icon: 'Setting',
+    children: [
+      { path: '/system/user', title: '用户管理' },
+      { path: '/system/role', title: '角色管理' },
+      { path: '/system/menu', title: '菜单管理' },
+      { path: '/system/log', title: '日志管理' }
+    ]
+  },
+  {
+    path: '/feedback',
+    title: '意见反馈',
+    icon: 'ChatDotRound'
+  }
+]
 
 const route = useRoute()
 const router = useRouter()
@@ -215,8 +237,8 @@ const userAvatar = ref('')
 // 通知相关
 const activeNoticeTab = ref('notification')
 const unreadCount = computed(() => {
-  return notifications.value.filter(n => !n.read).length + 
-         messages.value.filter(m => !m.read).length
+  return notifications.value.filter(n => !n.read).length +
+    messages.value.filter(m => !m.read).length
 })
 
 // 模拟通知数据
@@ -460,21 +482,21 @@ onMounted(() => {
 
 :deep(.notice-popover) {
   padding: 0;
-  
+
   .el-tabs__header {
     margin: 0;
   }
-  
+
   .el-tabs__nav {
     width: 100%;
     display: flex;
   }
-  
+
   .el-tabs__item {
     flex: 1;
     text-align: center;
   }
-  
+
   .el-tabs__content {
     padding: 8px 0;
   }
@@ -483,7 +505,8 @@ onMounted(() => {
 .main {
   background-color: #f0f2f5;
   padding: 20px;
-  height: calc(100vh - 84px - 34px); /* 减去头部高度和标签页高度 */
+  height: calc(100vh - 84px - 34px);
+  /* 减去头部高度和标签页高度 */
   overflow-y: auto;
 }
-</style> 
+</style>
