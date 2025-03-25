@@ -17,7 +17,7 @@
         active-text-color="#409EFF" 
         router
         >
-        <template v-for="item in menuList" :key="item.path">
+        <template v-for="item in newmenuList" :key="item.path">
           <!-- 没有子菜单的情况 -->
           <el-menu-item v-if="!item.children" :index="item.path">
             <el-icon>
@@ -154,7 +154,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, reactive, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import TagsView from './components/TagsView.vue'
 import {
@@ -177,6 +177,7 @@ import {
 } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import { getUserInfo, logout } from '@/api/user'
+import system from '../router/system'
 
 const menuList = [
   {
@@ -220,9 +221,26 @@ const menuList = [
     icon: 'ChatDotRound'
   }
 ]
+const newmenuList = reactive([])
+const menuKeys = JSON.parse(localStorage.getItem('menus'));
 
+menuList.forEach((item) => {
+    if (item.title && menuKeys.includes(item.title)) newmenuList.push(item);
+})
 const route = useRoute()
 const router = useRouter()
+console.log(router.getRoutes())
+// watch(route, async(newVal) => {
+//   const role =localStorage.getItem('role');
+//   if (role && role == 'admin') {
+//     router.addRoute(system);
+//   }
+//   if (!newVal.matched.length && newVal.fullPath === '/system') {
+//     await router.replace("/system");
+//   }
+// })
+router.addRoute(system);
+console.log(router.getRoutes())
 const isCollapse = ref(false)
 
 const activeMenu = computed(() => route.path)
@@ -327,6 +345,8 @@ const handleLogout = async () => {
     await logout()
     localStorage.removeItem('token')
     localStorage.removeItem('userInfo')
+    localStorage.removeItem('role')
+    localStorage.removeItem('menus')
     ElMessage.success('退出成功')
     router.push('/login')
   } catch (error) {
