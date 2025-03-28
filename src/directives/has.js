@@ -1,6 +1,7 @@
 export function has(value) {
     let isExist = false;
-    const role = localStorage.getItem("role");
+    const role = localStorage.getItem('role');
+    
     if (role == undefined || role == null) {
         return false;
     }

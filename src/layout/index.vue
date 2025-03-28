@@ -239,7 +239,10 @@ console.log(router.getRoutes())
 //     await router.replace("/system");
 //   }
 // })
-router.addRoute(system);
+const role =localStorage.getItem('role');
+if (role && role == 'admin') {
+    router.addRoute(system);
+}
 console.log(router.getRoutes())
 const isCollapse = ref(false)
 

@@ -81,7 +81,9 @@ const handleLogin = async () => {
     // 存储token和用户信息
     localStorage.setItem('token', res.data.token)
     localStorage.setItem('userInfo', JSON.stringify(res.data.userInfo))
-    localStorage.setItem('role', JSON.stringify(res.data.userInfo.role))
+    const rawRole = res.data.userInfo.role; 
+    const cleanRole = rawRole.replace(/^"|"$/g, ''); // 去掉开头和结尾的引号
+    localStorage.setItem('role', cleanRole);
     localStorage.setItem('menus',JSON.stringify(res.data.userInfo.menus))
     
     ElMessage.success('登录成功')
